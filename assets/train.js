@@ -30,7 +30,7 @@ $(document).ready(function() {
     var frequency = $("#frequency")
       .val()
       .trim();
-    // Creates local "temporary" object for holding employee data
+
     var newTrain = {
       name: trainName,
       destination: destination,
@@ -38,7 +38,6 @@ $(document).ready(function() {
       freq: frequency
     };
 
-    // Uploads employee data to the database
     database.ref().push(newTrain);
 
     // Logs everything to console
@@ -54,7 +53,7 @@ $(document).ready(function() {
     $("#frequency").val("");
   });
 
-  // 3. Create Firebase event for adding employee to the database and a row in the html when a user adds an entry
+  // 3. Create Firebase event
   database.ref().on("child_added", function(childSnapshot) {
     console.log(childSnapshot.val());
 
@@ -63,33 +62,36 @@ $(document).ready(function() {
     var destination = childSnapshot.val().destination;
     var trainTime = childSnapshot.val().time;
     var frequency = childSnapshot.val().freq;
-    var nextTrain = "next";
 
-    // Employee Info
     console.log(trainName);
     console.log(destination);
     console.log(trainTime);
     console.log(frequency);
 
-    // Prettify the employee start
-    var nextTrainPretty = moment.unix(trainTime).format("HH:mm a");
-    console.log(nextTrainPretty);
+    var trainPretty = moment.unix(trainTime).format("HH:mm a");
+    console.log(trainPretty);
 
-    // // Calculate the months worked using hardcore math
-    // // To calculate the months worked
-    // var nextTrain = moment().diff(moment(empStart, "X"), "months");
-    // console.log(nextTraim);
-
-    // // Calculate the total billed rate
-    // var empBilled = empMonths * empRate;
-    // console.log(empBilled);
+    // Calculate the months worked using hardcore math
+    // To calculate the months worked
+    var timeDiff = moment()
+      .subtract(trainTime)
+      .format("mm");
+    // console.log(timeDiff);
+    var remainder = timeDiff % frequency;
+    // console.log(remainder);
+    var nextTrain = frequency - remainder;
+    // console.log(nextTrain);
+    var nextTrainTime = moment()
+      .add(nextTrain, "minutes")
+      .format("hh:mm a");
+    console.log(nextTrainTime);
 
     // Create the new row
     var newRow = $("<tr>").append(
       $("<td>").text(trainName),
       $("<td>").text(destination),
       $("<td>").text(frequency),
-      $("<td>").text(nextTrainPretty),
+      $("<td>").text(nextTrainTime),
       $("<td>").text(nextTrain)
     );
 
